@@ -143,6 +143,7 @@ class TradingBot {
       minHolders: parseInt(process.env.MIN_HOLDERS) || 10,
       maxRetries: parseInt(process.env.MAX_RETRIES) || 3,
       debug: process.env.DEBUG === "true" || false,
+      dryRun: process.env.DRY_RUN !== "false",
     };
   }
 
@@ -381,6 +382,18 @@ class TradingBot {
         }
         swapAmount = position.amount;
         this.stats.totalSells++;
+      }
+
+      if (this.config.dryRun) {
+        const txid = `dry-run-${operation.toLowerCase()}-${Date.now()}`;
+        logger.warn(`[DRY_RUN] ${operation} skipped. No swap instructions requested and no transaction was sent.`);
+        logger.warn(`[DRY_RUN] Set DRY_RUN=false only after reviewing risk, wallet funding, and limits.`);
+        if (isBuy) {
+          this.buyingTokens.delete(token.token.mint);
+        } else {
+          this.sellingPositions.delete(token.token.mint);
+        }
+        return txid;
       }
 
       // Get swap instructions
@@ -738,6 +751,9 @@ class TradingBot {
       logger.info(chalk.cyan("\n═══════════════════════════════════════"));
       logger.info(chalk.cyan("🤖 Solana Trading Bot v2.0"));
       logger.info(chalk.cyan("═══════════════════════════════════════\n"));
+      if (this.config.dryRun) {
+        logger.warn("DRY_RUN is enabled. The bot will monitor tokens but will not submit swaps.");
+      }
       
       await this.initialize();
       
