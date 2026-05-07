@@ -1,13 +1,17 @@
 {
-  "name": "solana-volume-bot",
+  "name": "solana-trade-bot",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:http": "node index.js",
+    "start:websocket": "node websocket.js",
+    "validate:config": "node scripts/validate-config.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node --check index.js && node --check websocket.js && npm test && node scripts/validate-config.js --example"
   },
   "author": "",
-  "license": "ISC",
-  "description": "",
+  "license": "MIT",
+  "description": "Educational Solana trading bot proof of concept with dry-run safeguards and config validation.",
   "dependencies": {
     "@solana-tracker/data-api": "^0.0.5",
     "bs58": "^6.0.0",
